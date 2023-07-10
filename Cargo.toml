@@ -1,6 +1,6 @@
 [package]
 name = "crabcrypt"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Deco Moraes <deco.moraes@icloud.com>"]
 edition = "2021"
 description = "A work in progress cryptographic library that currently supports hashing."
