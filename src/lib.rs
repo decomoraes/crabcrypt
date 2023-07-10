@@ -107,6 +107,18 @@
 //   return ownsProcessState;
 // } enum Ciphers { Aes128Cbc, Aes128CbcHmacSha1, Aes128CbcHmacSha256, Aes128Ccm, Aes128Cfb, Aes128Cfb1, Aes128Cfb8 Aes128Ctr Aes128Ecb Aes128Gcm Aes128Ocb Aes128Ofb Aes128Xts Aes192Cbc Aes192Ccm Aes192Cfb Aes192Cfb1 Aes192Cfb8 Aes192Ctr Aes192Ecb Aes192Gcm Aes192Ocb Aes192Ofb Aes256Cbc Aes256CbcHmacSha1 Aes256CbcHmacSha256 Aes256Ccm Aes256Cfb Aes256Cfb1 Aes256Cfb8 Aes256Ctr Aes256Ecb Aes256Gcm Aes256Ocb Aes256Ofb Aes256Xts Aes128 Aes128Wrap Aes192 Aes192Wrap Aes256 Aes256Wrap Bf BfCbc BfCfb BfEcb BfOfb Blowfish Camellia128Cbc Camellia128Cfb Camellia128Cfb1 Camellia128Cfb8 Camellia128Ecb Camellia128Ofb Camellia192Cbc Camellia192Cfb Camellia192Cfb1 Camellia192Cfb8 }
 
+use crate::algorithms::md::md2::Md2;
+use crate::algorithms::md::md4::Md4;
+use crate::algorithms::md::md5::Md5;
+use crate::algorithms::sha1::sha1::Sha1;
+use crate::algorithms::sha2::sha224::Sha224;
+use crate::algorithms::sha2::sha256::Sha256;
+use crate::algorithms::sha2::sha384::Sha384;
+use crate::algorithms::sha2::sha512::Sha512;
+use crate::algorithms::sm::sm3::Sm3;
+use crate::BinaryToTextEncoding::Hex;
+
+#[allow(dead_code)]
 enum Ciphers {
   Aes128Cbc,
   Aes128Ecb,
@@ -158,10 +170,6 @@ enum Ciphers {
   Rc4,
   Rc440,
 }
-
-// enum Algorithms {
-//   Ciphers(Ciphers),
-// }
 
 // class Hash extends stream.Transform {
 //   private constructor();
@@ -225,100 +233,198 @@ enum Ciphers {
 //   digest(encoding: BinaryToTextEncoding): string;
 // }
 mod algorithms;
-mod crabcrypt {
-    pub enum BinaryToTextEncoding {
-        Base64,
-        Base64Url,
-        Hex,
-        Binary,
+mod utils;
+mod sig;
+
+#[derive(Copy, Clone)]
+pub enum BinaryToTextEncoding {
+    Base32,
+    Base64,
+    Base64Url,
+    Hex,
+    Binary,
+}
+
+#[allow(dead_code)]
+pub enum CharacterEncoding {
+    Utf8,
+    Utf16le,
+    Latin1,
+}
+
+pub enum LegacyCharacterEncoding {
+    Ascii,
+    Binary,
+    Ucs2,
+}
+pub enum Encoding {
+    BinaryToTextEncoding(BinaryToTextEncoding),
+    CharacterEncoding(CharacterEncoding),
+    LegacyCharacterEncoding(LegacyCharacterEncoding),
+}
+pub enum ECDHKeyFormat {
+    Compressed,
+    Uncompressed,
+    Hybrid,
+}
+
+#[derive(Copy, Clone)]
+pub enum Algorithms {
+    // GostMac,
+    Md2, // ok
+    Md4, // ok
+    Md5, // ok
+    // MdGost94,
+    // Ripemd160,
+    Sha1, // ok
+    Sha224, // ok
+    Sha256, // ok
+    Sha384, // ok
+    Sha512, // ok
+    Sm3, // ok
+    // Sha3_224,
+    // Sha3_256,
+    // Sha3_384,
+    // Sha3_512,
+    // Streebog256,
+    // Streebog512,
+    // Whirlpool,
+}
+
+#[derive(Copy, Clone)]
+pub struct Hash {
+    pub algorithm: Algorithms,
+    // GostMac,
+    pub md2: Option<Md2>,
+    pub md4: Option<Md4>,
+    pub md5: Option<Md5>,
+    // MdGost94,
+    // Ripemd160,
+    pub sha1: Option<Sha1>,
+    pub sha224: Option<Sha224>,
+    pub sha256: Option<Sha256>,
+    pub sha384: Option<Sha384>,
+    pub sha512: Option<Sha512>,
+    pub sm3: Option<Sm3>,
+    // Streebog256,
+    // Streebog512,
+    // Whirlpool,
+}
+
+impl Hash {
+    pub fn create(algorithm: Algorithms) -> Hash {
+        Hash {
+            algorithm,
+            md2: match &algorithm {
+                Algorithms::Md2 => Some(Md2::new()),
+                _ => None,
+            },
+            md4: match &algorithm {
+                Algorithms::Md4 => Some(Md4::new()),
+                _ => None,
+            },
+            md5: match &algorithm {
+                Algorithms::Md5 => Some(Md5::new()),
+                _ => None,
+            },
+            sha1: match &algorithm {
+                Algorithms::Sha1 => Some(Sha1::new()),
+                _ => None,
+            },
+            sha224: match &algorithm {
+                Algorithms::Sha224 => Some(Sha224::new()),
+                _ => None,
+            },
+            sha256: match &algorithm {
+                Algorithms::Sha256 => Some(Sha256::new()),
+                _ => None,
+            },
+            sha384: match &algorithm {
+                Algorithms::Sha384 => Some(Sha384::new()),
+                _ => None,
+            },
+            sha512: match &algorithm {
+                Algorithms::Sha512 => Some(Sha512::new()),
+                _ => None,
+            },
+            sm3: match &algorithm {
+                Algorithms::Sm3 => Some(Sm3::new()),
+                _ => None,
+            },
+        }
     }
-    // type CharacterEncoding = 'utf8' | 'utf-8' | 'utf16le' | 'latin1';
-    // type LegacyCharacterEncoding = 'ascii' | 'binary' | 'ucs2' | 'ucs-2';
-    // type Encoding = BinaryToTextEncoding | CharacterEncoding | LegacyCharacterEncoding;
-    // type ECDHKeyFormat = 'compressed' | 'uncompressed' | 'hybrid';
-    pub enum Algorithms {
-        GostMac,
-        Md4,
-        Md5,
-        MdGost94,
-        Ripemd160,
-        Sha1,
-        Sha224,
-        Sha256,
-        Sha384,
-        Sha512,
-        Streebog256,
-        Streebog512,
-        Whirlpool,
-    }
-    pub struct Hash {
-        pub algorithm: Algorithms,
-        // GostMac,
-        // Md4,
-        // Md5,
-        // MdGost94,
-        // Ripemd160,
-        // Sha1,
-        // Sha224,
-        pub sha256: Option<crate::algorithms::sha256::Sha256>,
-        // Sha384,
-        // Sha512,
-        // Streebog256,
-        // Streebog512,
-        // Whirlpool,
-    }
-    impl Hash {
-        pub fn create(algorithm: Algorithms) -> Hash {
-            // Implementação da função create() do módulo Hash
-            println!("Creating a hash");
-            let sha256: Option<crate::algorithms::sha256::Sha256>;
-            match algorithm {
-                Algorithms::Sha256 => {
-                    sha256 = Some(crate::algorithms::sha256::Sha256::new());
+
+    pub fn update(&mut self, data: &[u8]) -> &mut Self {
+        match self.algorithm {
+            Algorithms::Md2 => {
+                if let Some(md2) = self.md2.as_mut() {
+                    md2.update(data);
                 }
-                _ => {
-                    sha256 = None;
+            },
+            Algorithms::Md4 => {
+                if let Some(md4) = self.md4.as_mut() {
+                    md4.update(data);
                 }
-            }
-            Hash {
-                algorithm,
-                sha256,
-            }
+            },
+            Algorithms::Md5 => {
+                if let Some(md5) = self.md5.as_mut() {
+                    md5.update(data);
+                }
+            },
+            Algorithms::Sha1 => {
+                if let Some(sha1) = self.sha1.as_mut() {
+                    sha1.update(data);
+                }
+            },
+            Algorithms::Sha224 => {
+                if let Some(sha224) = self.sha224.as_mut() {
+                    sha224.update(data);
+                }
+            },
+            Algorithms::Sha256 => {
+                if let Some(sha256) = self.sha256.as_mut() {
+                    sha256.update(data);
+                }
+                // else {
+                //     let mut sha256 = Sha256::new();
+                //     sha256.update(data);
+                //     self.sha256 = Some(sha256);
+                // }
+            },
+            Algorithms::Sha384 => {
+                if let Some(sha384) = self.sha384.as_mut() {
+                    sha384.update(data);
+                }
+            },
+            Algorithms::Sha512 => {
+                if let Some(sha512) = self.sha512.as_mut() {
+                    sha512.update(data);
+                }
+            },
+            Algorithms::Sm3 => {
+                if let Some(sm3) = self.sm3.as_mut() {
+                    sm3.update(data);
+                }
+            },
         }
-pub fn update(&mut self, data: &[u8]) -> &mut Self {
-    match self.algorithm {
-        Algorithms::Sha256 => {
-            if let Some(sha256) = self.sha256.as_mut() {
-                sha256.update(data);
-            } else {
-                let mut sha256 = crate::algorithms::sha256::Sha256::new();
-                sha256.update(data);
-                self.sha256 = Some(sha256);
-            }
-        }
-        _ => {}
+        self
     }
-    self
-}
 
-        pub fn digest(&self, encoding: BinaryToTextEncoding) {
-            // Implementação da função digest() do módulo Hash
-            println!("Digesting a hash");
-        }
-
-        pub fn end(&self) {
-            // Implementação da função end() do módulo Hash
-            println!("Ending a hash");
+    pub fn digest(&mut self, encoding: BinaryToTextEncoding) -> String{
+        match self.algorithm {
+            Algorithms::Md2 => self.md2.unwrap().digest(encoding),
+            Algorithms::Md4 => self.md4.unwrap().digest(encoding),
+            Algorithms::Md5 => self.md5.unwrap().digest(encoding),
+            Algorithms::Sha1 => self.sha1.unwrap().digest(encoding),
+            Algorithms::Sha224 => self.sha224.unwrap().digest(encoding),
+            Algorithms::Sha256 => self.sha256.unwrap().digest(encoding),
+            Algorithms::Sha384 => self.sha384.unwrap().digest(encoding),
+            Algorithms::Sha512 => self.sha512.unwrap().digest(encoding),
+            Algorithms::Sm3 => self.sm3.unwrap().digest(encoding),
         }
     }
 }
 
-use crabcrypt::{Algorithms::Sha256, BinaryToTextEncoding::Hex};
-fn a() {
-    let crabcrypt = crabcrypt::Hash::create(Sha256)
-        .update("Hello World".as_bytes())
-        .digest(Hex);
-}
 
 // trait CrabCryptTrait {
 //   fn create_hash(algorithm: Algorithms) -> (); // (algorithm, options) // new Hash(algorithm, options);
@@ -383,8 +489,10 @@ fn a() {
 
 // module.exports = {
 //   // Methods
+
 //   checkPrime,
 //   checkPrimeSync,
+
 //   createCipheriv,
 //   createDecipheriv,
 //   createDiffieHellman,
@@ -397,31 +505,40 @@ fn a() {
 //   createSecretKey,
 //   createSign,
 //   createVerify,
+
 //   diffieHellman,
+
 //   generatePrime,
 //   generatePrimeSync,
+
 //   getCiphers,
 //   getCipherInfo,
 //   getCurves,
 //   getDiffieHellman: createDiffieHellmanGroup,
 //   getHashes,
+
 //   hkdf,
 //   hkdfSync,
 //   pbkdf2,
 //   pbkdf2Sync,
+
 //   generateKeyPair,
 //   generateKeyPairSync,
 //   generateKey,
 //   generateKeySync,
+
 //   privateDecrypt,
 //   privateEncrypt,
+
 //   publicDecrypt,
 //   publicEncrypt,
+
 //   randomBytes,
 //   randomFill,
 //   randomFillSync,
 //   randomInt,
 //   randomUUID,
+
 //   scrypt,
 //   scryptSync,
 //   sign: signOneShot,
@@ -619,19 +736,85 @@ fn a() {
 
 
 
+#[cfg(test)]
+mod tests {
+    use super::*;
 
+    #[test]
+    fn test_md2() {
+        let mut binding = Hash::create(Algorithms::Md2);
+        let sut = binding
+            .update(b"The quick brown fox jumps over the lazy dog");
 
-// pub fn add(left: usize, right: usize) -> usize {
-//     left + right
-// }
+        assert_eq!(&sut.digest(Hex), "03d85a0d629d2c442e987525319fc471");
+        assert_eq!(&sut.digest(BinaryToTextEncoding::Base32), "APMFUDLCTUWEILUYOUSTDH6EOE");
+        assert_eq!(&sut.digest(BinaryToTextEncoding::Base64), "A9haDWKdLEQumHUlMZ/EcQ==");
+        assert_eq!(&sut.digest(BinaryToTextEncoding::Base64Url), "A9haDWKdLEQumHUlMZ_EcQ");
+        assert_eq!(&sut.digest(BinaryToTextEncoding::Binary), "00000011110110000101101000001101011000101001110100101100010001000010111010011000011101010010010100110001100111111100010001110001");
+    }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
+    #[test]
+    fn test_md4() {
+        let sut = Hash::create(Algorithms::Md4)
+            .update(b"The quick brown fox jumps over the lazy dog")
+            .digest(Hex);
+        assert_eq!(sut, "1bee69a46ba811185c194762abaeae90");
+    }
 
-//     #[test]
-//     fn it_works() {
-//         let result = add(2, 2);
-//         assert_eq!(result, 4);
-//     }
-// }
+    #[test]
+    fn test_md5() {
+        let sut = Hash::create(Algorithms::Md5)
+            .update(b"The quick brown fox jumps over the lazy dog")
+            .digest(Hex);
+        assert_eq!(sut, "9e107d9d372bb6826bd81d3542a419d6");
+    }
+
+    #[test]
+    fn test_sha1() {
+        let sut = Hash::create(Algorithms::Sha1)
+            .update(b"The quick brown fox jumps over the lazy dog")
+            .digest(Hex);
+        assert_eq!(sut, "2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
+    }
+
+    #[test]
+    fn test_sha224() {
+        let sut = Hash::create(Algorithms::Sha224)
+            .update(b"The quick brown fox jumps over the lazy dog")
+            .digest(Hex);
+
+        assert_eq!(sut, "730e109bd7a8a32b1cb9d9a09aa2325d2430587ddbc0c38bad911525");
+    }
+
+    #[test]
+    fn test_sha256() {
+        let sut = Hash::create(Algorithms::Sha256)
+            .update(b"The quick brown fox jumps over the lazy dog")
+            .digest(Hex);
+        assert_eq!(sut, "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592");
+    }
+
+    #[test]
+    fn test_sha384() {
+        let sut = Hash::create(Algorithms::Sha384)
+            .update(b"The quick brown fox jumps over the lazy dog")
+            .digest(Hex);
+        assert_eq!(sut, "ca737f1014a48f4c0b6dd43cb177b0afd9e5169367544c494011e3317dbf9a509cb1e5dc1e85a941bbee3d7f2afbc9b1");
+    }
+
+    #[test]
+    fn test_sha512() {
+        let sut = Hash::create(Algorithms::Sha512)
+            .update(b"The quick brown fox jumps over the lazy dog")
+            .digest(Hex);
+        assert_eq!(sut, "07e547d9586f6a73f73fbac0435ed76951218fb7d0c8d788a309d785436bbb642e93a252a954f23912547d1e8a3b5ed6e1bfd7097821233fa0538f3db854fee6");
+    }
+
+    #[test]
+    fn test_sm3() {
+        let sut = Hash::create(Algorithms::Sm3)
+            .update(b"The quick brown fox jumps over the lazy dog")
+            .digest(Hex);
+        assert_eq!(sut, "5fdfe814b8573ca021983970fc79b2218c9570369b4859684e2e4c3fc76cb8ea");
+    }
+}

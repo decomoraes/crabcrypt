@@ -1,5 +1,5 @@
 use crate::BinaryToTextEncoding;
-use crate::utils::encoders::{to_base64, to_base64url, to_binary_string, to_hex_string};
+use crate::utils::encoders::{to_base32, to_base64, to_base64url, to_binary_string, to_hex_string};
 
 // The S-table's values are derived from Pi
 const S: [u8; 256] = [
@@ -102,6 +102,7 @@ impl Md2 {
         hash.copy_from_slice(&self.state[..Self::DIGEST_LEN]);
 
         match encoding {
+            BinaryToTextEncoding::Base32 => to_base32(&hash),
             BinaryToTextEncoding::Base64 => to_base64(&hash),
             BinaryToTextEncoding::Base64Url => to_base64url(to_base64(&hash)),
             BinaryToTextEncoding::Hex => to_hex_string(&hash),

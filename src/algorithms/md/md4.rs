@@ -1,4 +1,4 @@
-use crate::utils::encoders::{to_base64, to_base64url, to_binary_string, to_hex_string};
+use crate::utils::encoders::{to_base32, to_base64, to_base64url, to_binary_string, to_hex_string};
 use crate::BinaryToTextEncoding;
 use core::convert::TryFrom;
 
@@ -88,6 +88,7 @@ impl Md4 {
         hash[12..16].copy_from_slice(&self.state[3].to_le_bytes());
 
         match encoding {
+            BinaryToTextEncoding::Base32 => to_base32(&hash),
             BinaryToTextEncoding::Base64 => to_base64(&hash),
             BinaryToTextEncoding::Base64Url => to_base64url(to_base64(&hash)),
             BinaryToTextEncoding::Hex => to_hex_string(&hash),

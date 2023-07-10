@@ -1,5 +1,5 @@
 use crate::BinaryToTextEncoding;
-use crate::utils::encoders::{to_base64, to_base64url, to_binary_string, to_hex_string};
+use crate::utils::encoders::{to_base32, to_base64, to_base64url, to_binary_string, to_hex_string};
 use std::convert::TryInto;
 
 
@@ -100,6 +100,7 @@ impl Sha512 {
         }
 
         match encoding {
+            BinaryToTextEncoding::Base32 => to_base32(&hash),
             BinaryToTextEncoding::Base64 => to_base64(&hash),
             BinaryToTextEncoding::Base64Url => to_base64url(to_base64(&hash)),
             BinaryToTextEncoding::Hex => to_hex_string(&hash),
