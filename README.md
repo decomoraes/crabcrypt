@@ -43,6 +43,58 @@ Crabcrypt provides a set of hashing algorithms including:
 
 More features will be implemented soon. Stay tuned!
 
+## Usage
+
+Here's an example of how to use the hashing feature in Crabcrypt:
+
+```rust
+use crabcrypt::{
+    Algorithms,
+    BinaryToTextEncoding::Hex,
+    Hash
+};
+
+fn main() {
+    let hash_md5 = Hash::create(Algorithms::Md5)
+        .update(b"The quick brown fox jumps over the lazy dog")
+        .digest(Hex);
+    println!("MD5: {}", hash_md5);
+
+    let hash_sha1 = Hash::create(Algorithms::Sha1)
+        .update(b"The quick brown fox jumps over the lazy dog")
+        .digest(Hex);
+    println!("SHA-1: {}", hash_sha1);
+
+    let hash_sha256 = Hash::create(Algorithms::Sha256)
+        .update(b"The quick brown fox jumps over the lazy dog")
+        .digest(Hex);
+    println!("SHA-256: {}", hash_sha256);
+
+    let hash_sha512 = Hash::create(Algorithms::Sha512)
+        .update(b"The quick brown fox jumps over the lazy dog")
+        .digest(Hex);
+    println!("SHA-512: {}", hash_sha512);
+
+    let hash_sm3 = Hash::create(Algorithms::Sm3)
+        .update(b"The quick brown fox jumps over the lazy dog")
+        .digest(Hex);
+    println!("SM3: {}", hash_sm3);
+
+    // Create a mutable hash for the SHA256 algorithm
+    let mut hash_sha256_2 = Hash::create(Algorithms::Sha256);
+
+    // First update
+    hash_sha256_2.update(b"The quick brown fox ");
+
+    // Second update
+    hash_sha256_2.update(b"jumps over the lazy dog");
+
+    // Elsewhere in the code, the digest is calculated
+    let sha256_result_2 = hash_sha256_2.digest(Hex);
+    println!("SHA-256 (updated twice): {}", sha256_result_2);
+}
+```
+
 ## Contribution
 
 As Crabcrypt is in its early development stages, we appreciate any and all contributions! Whether it's reporting bugs, suggesting new features, improving documentation, or writing code, all contributions are welcome.
@@ -50,7 +102,3 @@ As Crabcrypt is in its early development stages, we appreciate any and all contr
 ## License
 
 Crabcrypt is [MIT licensed](LICENSE).
-
-## Disclaimer
-
-As this project is still under development, it is recommended to use it for educational purposes and not in production environments until a stable version is released.
